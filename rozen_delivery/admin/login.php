@@ -1,0 +1,5 @@
+<?php
+declare(strict_types=1); require_once dirname(__DIR__).'/lib/common.php';
+if(is_admin()) redirect(APP_BASE_URL.'/admin/index.php');
+$err=''; if($_SERVER['REQUEST_METHOD']==='POST'){ $pw=(string)($_POST['password']??''); if(password_verify($pw,ADMIN_PASSWORD_HASH)){$_SESSION['delivery_admin']=1; redirect(APP_BASE_URL.'/admin/index.php');} $err='비밀번호가 올바르지 않습니다.'; }
+?><!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><title><?=h(APP_NAME)?></title></head><body class="bg-light"><div class="container" style="max-width:460px;padding-top:12vh"><div class="card shadow-sm border-0"><div class="card-body p-4"><h3 class="mb-4">🚚 <?=h(APP_NAME)?></h3><?php if($err):?><div class="alert alert-danger"><?=h($err)?></div><?php endif?><form method="post"><label class="form-label">관리자 비밀번호</label><input type="password" class="form-control form-control-lg mb-3" name="password" required><button class="btn btn-primary btn-lg w-100">로그인</button></form></div></div></div></body></html>
