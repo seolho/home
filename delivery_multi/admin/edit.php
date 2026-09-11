@@ -1,0 +1,10 @@
+<?php
+declare(strict_types=1);require_once __DIR__.'/_header.php';$id=(int)($_GET['id']??$_POST['id']??0);$st=db()->prepare('SELECT * FROM delivery_shipments WHERE id=?');$st->execute([$id]);$r=$st->fetch(PDO::FETCH_ASSOC);if(!$r){echo '<div class="alert alert-danger">대상을 찾을 수 없습니다.</div>';require __DIR__.'/_footer.php';exit;}
+if($_SERVER['REQUEST_METHOD']==='POST'){verify_csrf();$carrier=normalize_carrier((string)($_POST['carrier_name']??''));if($carrier===''){flash('지원되는 택배사를 선택해 주세요.','danger');redirect('edit.php?id='.$id);} $up=db()->prepare("UPDATE delivery_shipments SET name=?,phone=?,product_name=?,carrier_name=?,tracking_no=?,send_status='pending',sent_at=NULL,last_error=NULL WHERE id=?");$up->execute([trim((string)$_POST['name']),normalize_phone((string)$_POST['phone']),trim((string)$_POST['product_name']),$carrier,normalize_tracking((string)$_POST['tracking_no']),$id]);flash('수정되었습니다. 발송상태를 미발송으로 초기화했습니다.');redirect('index.php');}
+?><div class="card border-0 shadow-sm" style="max-width:760px"><div class="card-body p-4"><h4>배송정보 수정</h4><form method="post"><input type="hidden" name="csrf" value="<?=h(csrf_token())?>"><input type="hidden" name="id" value="<?=$id?>">
+<label class="form-label mt-3">성명</label><input class="form-control" name="name" value="<?=h($r['name'])?>" required>
+<label class="form-label mt-3">연락처</label><input class="form-control" name="phone" value="<?=h($r['phone'])?>" required>
+<label class="form-label mt-3">상품명</label><input class="form-control" name="product_name" value="<?=h($r['product_name'])?>" required>
+<label class="form-label mt-3">택배사명</label><select class="form-select" name="carrier_name" required><?=carrier_options((string)$r['carrier_name'])?></select>
+<label class="form-label mt-3">송장번호</label><input class="form-control" name="tracking_no" value="<?=h($r['tracking_no'])?>" required>
+<div class="mt-4"><button class="btn btn-primary">저장</button> <a class="btn btn-outline-secondary" href="index.php">취소</a></div></form></div></div><?php require __DIR__.'/_footer.php'; ?>
